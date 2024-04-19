@@ -133,7 +133,7 @@ UserSchema.statics.findByToken = async function (token, access) {
     };
 };
 
-UserSchema.statics.findByCredentials = function (email, password) {
+UserSchema.statics.findByCredentials = function (email) {
     var User = this;
     return User.findOne({ email }).then(function (user) {
         if (!user) {
@@ -143,13 +143,7 @@ UserSchema.statics.findByCredentials = function (email, password) {
             });
         }
         return new Promise(function (resolve, reject) {
-            bcrypt.compare(password, user.password, function (err, res) {
-                if (res) {
-                    resolve(user);
-                } else {
-                    reject();
-                }
-            });
+            resolve(user);
         });
     });
 };

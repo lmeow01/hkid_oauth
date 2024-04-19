@@ -1,11 +1,14 @@
 const express = require("express");
 const R = require("ramda");
-
+const sgMail = require('@sendgrid/mail')
 const { verifyAuthToken } = require("../middlewares/authenticate");
 // const projectMiddleware = require("../middlewares/projectMiddleware");
 const User = require("../models/user");
 
 const router = new express.Router();
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY)
+
 
 router.post("/register", async (req, res) => {
     const body = R.pick(["name", "hkid", "phone", "email", "password"], req.body)
@@ -21,11 +24,17 @@ router.post("/register", async (req, res) => {
 })
 
 router.route("/login").post(async function (req, res) {
-  var body = R.pick(["email", "password"], req.body);
+  var body = R.pick(["email", "projectID", "redirectUrl", "scope"], req.body);
+  var token = await user.generateAuthToken();
   try {
-    var user = await User.findByCredentials(body.email, body.password);
-    var token = await user.generateAuthToken();
-    res.header("x-auth", token).send(R.pick(["name", "hkid"], user));
+    var user = await User.findByCredentials(body.email);
+      sgMail.send({
+        to: email,
+        from: 'maple_pro@live.com',
+        subject: 'Magic Link: User Authentication of HKID OAuth',
+        text: `Login to your HKID OAuth account with this link: https://hkid-frontend.vercel.app/authorization?token=${token}&projectID=${body.projectID}&redirectUrl=${body.redirectUrl}&scope=${body.scope}`,
+    })  
+    res.status(200).send({"message": "Successfully generated and sent email!"});
   } catch (e) {
     console.log(e);
     res.status(400).send({ code: 400, message: e });
