@@ -25,9 +25,9 @@ router.post("/register", async (req, res) => {
 
 router.route("/login").post(async function (req, res) {
   var body = R.pick(["email", "projectID", "redirectUrl", "scope"], req.body);
-  var token = await user.generateAuthToken();
   try {
     var user = await User.findByCredentials(body.email);
+    var token = await user.generateAuthToken();
       sgMail.send({
         to: email,
         from: 'maple_pro@live.com',
