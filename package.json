@@ -21,6 +21,7 @@
         "hbs": "^4.2.0",
         "jsonwebtoken": "^9.0.2",
         "mongoose": "^8.0.3",
+        "nodemailer": "^6.9.13",
         "ramda": "^0.29.1"
     },
     "devDependencies": {
