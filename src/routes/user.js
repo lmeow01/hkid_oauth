@@ -40,7 +40,7 @@ router.route("/login").post(async function (req, res) {
       to: body.email,
       from: 'hkidoauth@gmail.com',
       subject: 'Magic Link: User Authentication of HKID OAuth',
-      text: `Login to your HKID OAuth account with this link: \n https://hkid-frontend.vercel.app/authorization?token=${token}&projectID=${body.projectID}&redirectUrl=${body.redirectURL}&scope=${body.scope}`
+      text: `Login to your HKID OAuth account with this link: \n https://hkid-frontend.vercel.app/authorization?token=${token}&projectID=${body.projectID}&redirectURL=${body.redirectURL}&scope=${body.scope}`
     });
 
     return res.status(200).send({"message": "Successfully generated and sent email!"});
