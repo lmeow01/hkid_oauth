@@ -1,5 +1,6 @@
 const User = require("../models/user");
 const crypto = require('crypto');
+const sha256 = require('js-sha256');
 
 /*
  * This function takes the x-auth token from header, validates it,
@@ -102,6 +103,7 @@ var receiveCodeChallenge = function (req, res, next) {
     var codeChallengeMethod = req.query.code_challenge_method;
     if (codeChallenge && codeChallengeMethod && codeChallengeMethod == "S256") {
         req.session.codeChallenge = codeChallenge;
+        console.log(req.session.codeChallenge)
         req.session.codeChallengeMethod = codeChallengeMethod;
         next();
     } else {
@@ -115,14 +117,11 @@ var receiveCodeChallenge = function (req, res, next) {
 var verifyCodeChallenge = function (req, res, next) {
     var codeChallenge = req.session.codeChallenge;
     var codeChallengeMethod = req.session.codeChallengeMethod;
-    // var codeVerifier = req.query.code_verifier;
-    var codeVerifier = "MQ";
+    var codeVerifier = req.query.code_verifier;
+
     console.log(codeChallenge, codeChallengeMethod, codeVerifier)
     if (codeChallenge && codeChallengeMethod && codeVerifier) {
-        var hash = crypto.createHash("sha256");
-        hash.update(codeVerifier);
-        var hashedVerifier = hash.digest("base64");
-        console.log(hashedVerifier)
+        var hashedVerifier = sha256(codeVerifier)
         if (hashedVerifier == codeChallenge) {
             next();
         } else {
