@@ -30,7 +30,7 @@ router.post("/register", async (req, res) => {
 
 router.route("/login").post(async function (req, res) {
   var body = R.pick(["email", "projectID", "redirectURL", "scope", "code_challenge", "code_challenge_method"], req.body);
-  
+
 
   try {
     var user = await User.findByCredentials(body.email);

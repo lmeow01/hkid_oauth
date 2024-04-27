@@ -22,7 +22,7 @@ router
   });
 router
   .route("/code")
-  .get(projectMiddleware, verifyAuthToken, receiveCodeChallenge, async function (req, res) {
+  .get(projectMiddleware, verifyAuthToken, async function (req, res) {
     try {
       var code = await req.user.generateOAuthCode(req.project);
       redirectURL = `${req.query.redirectURL}?code=${code}`;
@@ -34,7 +34,7 @@ router
   });
 router
   .route("/token")
-  .get(projectMiddleware, verifyOAuthCode, verifyCodeChallenge,async function (req, res) {
+  .get(projectMiddleware, verifyOAuthCode, async function (req, res) {
     if (req.project.projectSecret != req.query.projectSecret) {
       return res
         .status(400)
