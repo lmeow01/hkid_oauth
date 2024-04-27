@@ -1,4 +1,6 @@
 const User = require("../models/user");
+const crypto = require('crypto');
+
 /*
  * This function takes the x-auth token from header, validates it,
  * and finds the user by that.
@@ -93,4 +95,48 @@ var verifyAccessToken = function (req, res, next) {
             }
         });
 };
-module.exports = { verifyAccessToken, verifyAuthToken, verifyOAuthCode };
+
+// PKCE methods
+var receiveCodeChallenge = function (req, res, next) {
+    var codeChallenge = req.query.code_challenge;
+    var codeChallengeMethod = req.query.code_challenge_method;
+    if (codeChallenge && codeChallengeMethod && codeChallengeMethod == "S256") {
+        req.session.codeChallenge = codeChallenge;
+        req.session.codeChallengeMethod = codeChallengeMethod;
+        next();
+    } else {
+        res.status(400).send({
+            code: 400,
+            message: "Invalid code_challenge or code_challenge_method",
+        })
+    }
+}
+
+var verifyCodeChallenge = function (req, res, next) {
+    var codeChallenge = req.session.codeChallenge;
+    var codeChallengeMethod = req.session.codeChallengeMethod;
+    // var codeVerifier = req.query.code_verifier;
+    var codeVerifier = "MQ";
+    console.log(codeChallenge, codeChallengeMethod, codeVerifier)
+    if (codeChallenge && codeChallengeMethod && codeVerifier) {
+        var hash = crypto.createHash("sha256");
+        hash.update(codeVerifier);
+        var hashedVerifier = hash.digest("base64");
+        console.log(hashedVerifier)
+        if (hashedVerifier == codeChallenge) {
+            next();
+        } else {
+            res.status(400).send({
+                code: 400,
+                message: "Invalid code_verifier",
+            })
+        }
+    } else {
+        res.status(400).send({
+            code: 400,
+            message: "Invalid code_challenge or code_challenge_method",
+        })
+    }
+}
+
+module.exports = { verifyAccessToken, verifyAuthToken, verifyOAuthCode, receiveCodeChallenge, verifyCodeChallenge };

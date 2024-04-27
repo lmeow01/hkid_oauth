@@ -29,8 +29,8 @@ router.post("/register", async (req, res) => {
 })
 
 router.route("/login").post(async function (req, res) {
-  var body = R.pick(["email", "projectID", "redirectURL", "scope"], req.body);
-
+  var body = R.pick(["email", "projectID", "redirectURL", "scope", "code_challenge", "code_challenge_method"], req.body);
+  
 
   try {
     var user = await User.findByCredentials(body.email);
@@ -40,12 +40,12 @@ router.route("/login").post(async function (req, res) {
       to: body.email,
       from: 'hkidoauth@gmail.com',
       subject: 'Magic Link: User Authentication of HKID OAuth',
-      text: `Login to your HKID OAuth account with this link: \n https://hkid-frontend.vercel.app/authorization?token=${token}&projectID=${body.projectID}&redirectURL=${body.redirectURL}&scope=${body.scope}`
+      text: `Login to your HKID OAuth account with this link: \n https://hkid-frontend.vercel.app/authorization?token=${token}&projectID=${body.projectID}&redirectURL=${body.redirectURL}&scope=${body.scope}&code_challenge=${body.code_challenge}&code_challenge_method=${body.code_challenge_method}`
     });
 
     return res.status(200).send({"message": "Successfully generated and sent email!"});
 
-    
+
   } catch (e) {
     console.log(e);
     res.status(400).send({ code: 400, message: e });

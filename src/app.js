@@ -1,6 +1,7 @@
 const path = require("path");
 const bodyParser = require("body-parser");
 const express = require("express");
+const session = require("express-session");
 require("./db/mongoose");
 const app = express();
 const publicPath = path.join(__dirname, "../public");
@@ -15,6 +16,8 @@ app.use(
         extensions: ["html"],
     })
 );
+
+app.use(session({ secret: 'keyboard cat', cookie: { maxAge: 60000 }}))
 
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");

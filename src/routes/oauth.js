@@ -7,6 +7,8 @@ const {
   verifyAccessToken,
   verifyAuthToken,
   verifyOAuthCode,
+  receiveCodeChallenge,
+  verifyCodeChallenge
 } = require("../middlewares/authenticate");
 
 const router = express.Router();
@@ -20,7 +22,7 @@ router
   });
 router
   .route("/code")
-  .get(projectMiddleware, verifyAuthToken, async function (req, res) {
+  .get(projectMiddleware, verifyAuthToken, receiveCodeChallenge, async function (req, res) {
     try {
       var code = await req.user.generateOAuthCode(req.project);
       redirectURL = `${req.query.redirectURL}?code=${code}`;
@@ -32,7 +34,7 @@ router
   });
 router
   .route("/token")
-  .get(projectMiddleware, verifyOAuthCode, async function (req, res) {
+  .get(projectMiddleware, verifyOAuthCode, verifyCodeChallenge,async function (req, res) {
     if (req.project.projectSecret != req.query.projectSecret) {
       return res
         .status(400)
@@ -58,7 +60,7 @@ router
   });
 
 const scopeMapping = {
-  full: ["_id", "name", "email", "phone"],
+  full: ["_id", "name","hkid", "email", "phone"],
   default: ["_id", "name", "hkid"],
   email: ["_id", "name", "email"],
   phone: ["_id", "name", "phone"],
